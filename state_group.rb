@@ -1,22 +1,29 @@
 require "telegram/bot"
 require "byebug"
 
-module ValidationMethods
-  def is_integer_regex?(str)
-    str.match?(/\A[-+]?\d+\z/)
+module Validation
+  @validators = []
+
+  def is_integer_regex?
+    @value.match?(/\A[-+]?\d+\z/)
   end
+
+  def validate &block
+    @validators << block
+  end
+
+  attr_reader :validators
 end
 
 class State
-  def initialize name, validators=[]
+  def initialize name, &block
     @name = name
-    @validators = validators
+    instance_eval(&block)
   end
 
   attr_reader :name
-  attr_reader :validators
 
-  include ValidationMethods
+  include Validation
 end
 
 class BoundState
@@ -39,22 +46,50 @@ class BoundState
   end
 end
 
+class Handler
+  def initialize context, filter, &block
+    
+  end 
+end
+
+class Handlers
+  @handlers = []
+
+  def <<
+    
+  end
+end
+
 class TelegramBotDialogTool
   class << self
-    @root_handlers = []
+    @stateless_handlers = Handlers.new
+    @user_state_handlers = Handlers.new
     @user_state = {}
-    @global_state = {}
 
     def lets_rock &block
       instance_eval(&block)
     end
 
-    def command name
-      @root_handlers << { type: :text, filter: "/#{name}" }
+    def command name, state = nil, &block
+      if state
+        @stateless_handlers.instance_eval(&block)
+      else
+        @stateless_handlers.instance_eval(&block)
+      end
     end
 
     def say_hi
-      
+      Proc.new do
+        @bot.api.send_message(chat_id: @message.chat.id, text: "Hi #{@message.from.full_name}!")
+      end
+    end
+
+    def integer
+      return State.new do
+        validate do
+          is_integer_regex?
+        end
+      end
     end
 
     def filter_exact value, value1

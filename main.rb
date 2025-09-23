@@ -3,10 +3,27 @@ require "dotenv/load"
 require_relative "db"
 require_relative "state_group"
 
+def start_handler(message)
+  
+end
+
+def add_new_user_handler(message, state)
+  
+end
+
+map_handler(start_handler, command_filter(:start))
+map_handler(start_handler, command_filter(:add) && state_filter("add_new_user:first_name"))
+
 TelegramBotDialogTool.lets_rock do
 
   command :start do
     say_hi
+  end
+
+  command :add, "new_user" do
+    ask string, for: :first_name, with: "Enter First Name:"
+    ask string, for: :last_name, with: "Enter Last Name:"
+    answer "New user \"#{get(:first_name)} #{get(:last_name)}\" added."
   end
 
   # Здесь в стек ложиться (для текушего пользователя)
