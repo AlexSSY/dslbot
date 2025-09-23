@@ -16,16 +16,6 @@ module Validation
   end
 end
 
-class StateGroup
-  include Validation
-
-  def initialize &block
-    @command_handlers = {}
-    @message_handlers = {}
-    instance_eval &block
-  end
-end
-
 class State
   def initialize name, validators=[]
     @name = name
@@ -43,21 +33,31 @@ class BoundState
   end
 
   def errors
+    return enum_for(:errors) unless block_given?
+
     @state.validators.each do |validator|
       error = validator.call(@value)
-      yield error if !error
+      yield error if error # отдаем только ошибки
     end
+  end
+
+  def valid?
+    errors.none?
   end
 end
 
 class TelegramBotDialogTool
   class << self
     def lets_rock &block
-      instance_eval &block
+      instance_eval(&block)
     end
 
     def command name
     
+    end
+
+    def say_hi
+      
     end
 
     def state state_group, &block
