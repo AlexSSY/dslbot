@@ -48,23 +48,21 @@ end
 
 class TelegramBotDialogTool
   class << self
+    @root = []
+
     def lets_rock &block
       instance_eval(&block)
     end
 
     def command name
-    
+      root << {type: :command, filter: "/#{name}"}
     end
 
     def say_hi
       
     end
 
-    def state state_group, &block
-      state_group.instance_eval &block
-    end
-
-    def update message
+    def supply_message message
       case message
       when Telegram::Bot::Types::BotCommand
         puts 'command'
