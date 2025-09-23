@@ -1,6 +1,7 @@
 require "byebug"
 require "dotenv/load"
 require_relative "db"
+require_relative "state_group"
 
 TelegramBotDialogTool.lets_rock do
 
@@ -53,5 +54,18 @@ TelegramBotDialogTool.lets_rock do
 end
 
 if __FILE__ == $0
-  puts "Hello World!"
+  require 'telegram/bot'
+
+  token = ENV["BOT_TOKEN"]
+
+  Telegram::Bot::Client.run(token) do |bot|
+    bot.listen do |message|
+      case message.text
+      when '/start'
+        bot.api.send_message(chat_id: message.chat.id, text: "Hello, #{message.from.first_name}")
+      when '/stop'
+        bot.api.send_message(chat_id: message.chat.id, text: "Bye, #{message.from.first_name}")
+      end
+    end
+  end
 end

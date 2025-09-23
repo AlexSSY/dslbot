@@ -1,18 +1,9 @@
 require "telegram/bot"
+require "byebug"
 
-module Validation
-  @validators = {}
-  
-  def validates name, callback
-    validators[name]
-  end
-
+module ValidationMethods
   def is_integer_regex?(str)
     str.match?(/\A[-+]?\d+\z/)
-  end
-
-  def validate name, value
-    
   end
 end
 
@@ -24,6 +15,8 @@ class State
 
   attr_reader :name
   attr_reader :validators
+
+  include ValidationMethods
 end
 
 class BoundState
@@ -37,7 +30,7 @@ class BoundState
 
     @state.validators.each do |validator|
       error = validator.call(@value)
-      yield error if error # отдаем только ошибки
+      yield error if error
     end
   end
 
@@ -48,26 +41,35 @@ end
 
 class TelegramBotDialogTool
   class << self
-    @root = []
+    @root_handlers = []
+    @user_state = {}
+    @global_state = {}
 
     def lets_rock &block
       instance_eval(&block)
     end
 
     def command name
-      root << {type: :command, filter: "/#{name}"}
+      @root_handlers << { type: :text, filter: "/#{name}" }
     end
 
     def say_hi
       
     end
 
+    def filter_exact value, value1
+      value == value1
+    end
+
     def supply_message message
+      byebug
+      user_id = message.from.id
+
       case message
       when Telegram::Bot::Types::BotCommand
         puts 'command'
       when Telegram::Bot::Types::Message
-        puts 'message'
+        current_user_state = @user_state.fetch user_id
       when Telegram::Bot::Types::CallbackQuery
         puts 'callback query'
       end
