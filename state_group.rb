@@ -26,6 +26,30 @@ class StateGroup
   end
 end
 
+class State
+  def initialize name, validators=[]
+    @name = name
+    @validators = validators
+  end
+
+  attr_reader :name
+  attr_reader :validators
+end
+
+class BoundState
+  def initialize state, value
+    @state = state
+    @value = value
+  end
+
+  def errors
+    @state.validators.each do |validator|
+      error = validator.call(@value)
+      yield error if !error
+    end
+  end
+end
+
 class TelegramBotDialogTool
   class << self
     def lets_rock &block
