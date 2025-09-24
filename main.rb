@@ -3,12 +3,12 @@ require "dotenv/load"
 require_relative "db"
 require_relative "state_group"
 
-tgd = TelegramBotDialogTool.new
-tgd.lets_rock do
+# tgd = TelegramBotDialogTool.new
+# tgd.lets_rock do
 
-  command :start do
-    say_hi
-  end
+#   command :start do
+#     say_hi
+#   end
 
   # command :add, "new_user" do
   #   ask string, for: :first_name, with: "Enter First Name:"
@@ -58,7 +58,7 @@ tgd.lets_rock do
 
   # end
 
-end
+# end
 
 if __FILE__ == $0
   require 'telegram/bot'
@@ -66,6 +66,12 @@ if __FILE__ == $0
   token = ENV["BOT_TOKEN"]
 
   Telegram::Bot::Client.run(token) do |bot|
+    tgd = TelegramBotDialogTool.new bot
+    tgd.lets_rock do
+      command :start do
+        say_hi
+      end
+    end
     bot.listen do |message|
       tgd.supply_message message
     end

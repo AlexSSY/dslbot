@@ -47,7 +47,8 @@ class BoundState
 end
 
 class Context
-  def initialize message, user_state
+  def initialize message, user_state, bot
+    @bot = bot
     @message = message
     @user_state = user_state
   end
@@ -56,11 +57,13 @@ class Context
 end
 
 class TelegramBotDialogTool
-  def initialize
+  def initialize bot
+    @bot = bot
     @handlers = []
     @user_state = {}
     @state_stack = []
     @filter_stack = []
+    @action_stack = []
   end
 
   def lets_rock &block
@@ -68,7 +71,6 @@ class TelegramBotDialogTool
   end
 
   def command name, state = nil, &block
-    byebug
     @state_stack << state if state
 
     filter_proc = Proc.new do
@@ -76,17 +78,24 @@ class TelegramBotDialogTool
     end
     @filter_stack << filter_proc
     
-    @handlers << { filter: ->() { message.text == "/#{name}" }, block: block }
-    
-    instance_eval(&block)
+    filter = Proc.new { message.text == "/#{name}" }
+    actions = []
 
+    instance_eval(&block)
+    @action_stack.each do |action|
+      actions << action
+    end
+
+    @handlers << { filter: filter, actions: actions }
+
+    @action_stack = []
     @state_stack = []
     @filter_stack = []
   end
 
   def say_hi
-    Proc.new do
-      @bot.api.send_message(chat_id: @message.chat.id, text: "Hi #{@message.from.full_name}!")
+    @action_stack << Proc.new do
+      @bot.api.send_message(chat_id: @message.chat.id, text: "Hi #{@message.from.first_name} #{@message.from.last_name}!")
     end
   end
 
@@ -110,6 +119,16 @@ class TelegramBotDialogTool
       puts "Пришло текстовое сообщение:", message.text
       if message.text[0] == "/"
         puts "Поскольку оно начинаеться с \"/\" то обрабатываем его как команду..."
+        @handlers.each do |handler|
+          ctx = Context.new message, @user_state, @bot
+          filter = handler[:filter]
+          if ctx.instance_eval(&filter)
+            actions = handler[:actions]
+            actions.each do |action|
+              ctx.instance_eval(&action)
+            end
+          end
+        end
       else
         puts "Обрабатываю как обычное сообшение..."
       end
