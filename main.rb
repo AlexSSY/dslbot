@@ -3,7 +3,8 @@ require "dotenv/load"
 require_relative "db"
 require_relative "state_group"
 
-TelegramBotDialogTool.lets_rock do
+tgd = TelegramBotDialogTool.new
+tgd.lets_rock do
 
   command :start do
     say_hi
@@ -66,7 +67,7 @@ if __FILE__ == $0
 
   Telegram::Bot::Client.run(token) do |bot|
     bot.listen do |message|
-      TelegramBotDialogTool.supply_message message
+      tgd.supply_message message
     end
   end
 end
