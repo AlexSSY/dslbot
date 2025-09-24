@@ -46,24 +46,42 @@ class BoundState
   end
 end
 
-class Handler
-  def initialize context, filter, &block
-    
-  end 
+module Filters
+  def command command
+    message.text == command
+  end
+
+  def state state
+    user_state == state
+  end
 end
 
-class Handlers
-  @handlers = []
+class Context
+  def initialize message, user_state
+    @message = message
+    @user_state = user_state
+  end
 
-  def <<
-    
+  attr_reader :message, :user_state
+end
+
+class Handler
+  def initialize message_type, filter, &block
+    @message_type = message_type
+    @filter = filter
+  end
+
+  attr_reader :filter
+
+  def check_filter context
+    context.instance_eval(&filter)
   end
 end
 
 class TelegramBotDialogTool
   class << self
-    @stateless_handlers = Handlers.new
-    @user_state_handlers = Handlers.new
+    @stateless_handlers = []
+    @user_state_handlers = {}
     @user_state = {}
 
     def lets_rock &block
@@ -72,9 +90,10 @@ class TelegramBotDialogTool
 
     def command name, state = nil, &block
       if state
-        @stateless_handlers.instance_eval(&block)
+        # TODO: add logic later
       else
-        @stateless_handlers.instance_eval(&block)
+        # handler = Handler.new 
+        # @stateless_handlers
       end
     end
 
@@ -97,16 +116,14 @@ class TelegramBotDialogTool
     end
 
     def supply_message message
-      byebug
-      user_id = message.from.id
-
       case message
       when Telegram::Bot::Types::BotCommand
-        puts 'command'
+        puts "Command: ", message.command
       when Telegram::Bot::Types::Message
-        current_user_state = @user_state.fetch user_id
+        binding.irb
+        puts "Message:", message.text
       when Telegram::Bot::Types::CallbackQuery
-        puts 'callback query'
+        puts "Callback Query", message.callback_query
       end
     end
   end
