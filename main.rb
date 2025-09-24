@@ -69,8 +69,19 @@ if __FILE__ == $0
     tgd = TelegramBotDialogTool.new bot
     tgd.lets_rock do
       command :start do
-        say_hi
+        say_text {
+          <<~TEXT
+            Hello #{message.from.first_name} #{message.from.last_name}!
+            Your ID: #{message.from.id}
+          TEXT
+        }
       end
+
+      # command :add, "new_user" do
+      #   ask string, for: :first_name, with: "Enter First Name:"
+      #   ask string, for: :last_name, with: "Enter Last Name:"
+      #   answer "New user \"#{get(:first_name)} #{get(:last_name)}\" added."
+      # end
     end
     bot.listen do |message|
       tgd.supply_message message

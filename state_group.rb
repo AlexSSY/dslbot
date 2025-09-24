@@ -53,7 +53,7 @@ class Context
     @user_state = user_state
   end
 
-  attr_reader :message, :user_state
+  attr_reader :message, :user_state, :bot
 end
 
 class TelegramBotDialogTool
@@ -93,10 +93,18 @@ class TelegramBotDialogTool
     @filter_stack = []
   end
 
-  def say_hi
+  def say_text &block
     @action_stack << Proc.new do
-      @bot.api.send_message(chat_id: @message.chat.id, text: "Hi #{@message.from.first_name} #{@message.from.last_name}!")
+      text = instance_eval(&block)
+      @bot.api.send_message(chat_id: @message.chat.id, text: text)
     end
+  end
+
+  def say_hi
+    # @action_stack << Proc.new do
+    #   @bot.api.send_message(chat_id: @message.chat.id, text: "Hi #{@message.from.first_name} #{@message.from.last_name}!")
+    # end
+    say_text { "Hi #{message.from.first_name} #{message.from.last_name}!" }
   end
 
   def integer
