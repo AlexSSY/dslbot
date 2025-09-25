@@ -1,5 +1,3 @@
-require "byebug"
-
 class DB
   def initialize
     @storage = {}

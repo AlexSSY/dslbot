@@ -78,9 +78,13 @@ if __FILE__ == $0
       end
 
       command :add, "new_user" do
-        ask string, for: :first_name, with: "Enter First Name:"
-        ask string, for: :last_name, with: "Enter Last Name:"
-        answer "New user \"#{get(:first_name)} #{get(:last_name)}\" added."
+        say_text { "Enter First Name:" }
+        ask string, for: :first_name
+
+        say_text { "Enter Last Name:" }
+        ask string, for: :last_name
+
+        say_text { "New user \"#{get(:first_name)} #{get(:last_name)}\" added." }
       end
     end
     bot.listen do |message|

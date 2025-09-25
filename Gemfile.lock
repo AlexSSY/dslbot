@@ -7,6 +7,7 @@ GEM
     debug (1.11.0)
       irb (~> 1.10)
       reline (>= 0.3.8)
+    diff-lcs (1.6.2)
     dotenv (3.1.8)
     dry-core (1.1.0)
       concurrent-ruby (~> 1.0)
@@ -61,6 +62,19 @@ GEM
       psych (>= 4.0.0)
     reline (0.6.2)
       io-console (~> 0.5)
+    rspec (3.13.1)
+      rspec-core (~> 3.13.0)
+      rspec-expectations (~> 3.13.0)
+      rspec-mocks (~> 3.13.0)
+    rspec-core (3.13.5)
+      rspec-support (~> 3.13.0)
+    rspec-expectations (3.13.5)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.13.0)
+    rspec-mocks (3.13.5)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.13.0)
+    rspec-support (3.13.6)
     stringio (3.1.7)
     telegram-bot-ruby (2.4.0)
       dry-struct (~> 1.6)
@@ -77,6 +91,7 @@ PLATFORMS
 DEPENDENCIES
   debug (~> 1.11.0)
   dotenv (~> 3.1)
+  rspec
   telegram-bot-ruby (~> 2.4)
 
 BUNDLED WITH

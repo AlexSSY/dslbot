@@ -1,5 +1,4 @@
 require "telegram/bot"
-require "byebug"
 
 module Validation
   @validators = []
@@ -43,6 +42,24 @@ class BoundState
 
   def valid?
     errors.none?
+  end
+end
+
+class LocalVars
+  def let name, value
+    instance_variable_set var_name(name), value
+  end
+
+  def get name
+    instance_variable_get var_name(name)
+  end
+
+  def set name, &block
+    instance_variable_set var_name(name), block.call(get(name))
+  end
+
+  def var_name name
+    "@#{name.to_s}"
   end
 end
 
@@ -113,10 +130,6 @@ class TelegramBotDialogTool
         is_integer_regex?
       end
     end
-  end
-
-  def filter_exact value, value1
-    value == value1
   end
 
   def supply_message message
