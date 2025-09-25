@@ -17,7 +17,7 @@ end
 class State
   def initialize name, &block
     @name = name
-    instance_eval(&block)
+    instance_eval(&block) if block_given?
   end
 
   attr_reader :name
@@ -87,8 +87,8 @@ class TelegramBotDialogTool
     instance_eval(&block)
   end
 
-  def command name, state = nil, &block
-    @state_stack << state if state
+  def command name, &block
+    @state_stack << name.to_s
 
     filter_proc = Proc.new do
       message.text == "/#{name}"
@@ -118,17 +118,18 @@ class TelegramBotDialogTool
   end
 
   def say_hi
-    # @action_stack << Proc.new do
-    #   @bot.api.send_message(chat_id: @message.chat.id, text: "Hi #{@message.from.first_name} #{@message.from.last_name}!")
-    # end
     say_text { "Hi #{message.from.first_name} #{message.from.last_name}!" }
   end
 
-  def integer
-    return State.new do
-      validate do
-        is_integer_regex?
-      end
+  def ask state_fabrik, name
+    state_name = @state_stack.join "_" + ":" + name.to_s
+    state = state_fabrik.call
+    @state
+  end
+
+  def string
+    Proc.new do
+      State.new
     end
   end
 

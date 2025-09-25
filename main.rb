@@ -77,7 +77,7 @@ if __FILE__ == $0
         }
       end
 
-      command :add, "new_user" do
+      command :add do
         say_text { "Enter First Name:" }
         ask string, for: :first_name
 
